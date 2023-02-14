@@ -21,3 +21,39 @@
 기본적인 사용 방법은 Dataset을 정의하고, 이를 DataLoader에 전달하는 것입니다.
 
 Dataset을 커스텀하여 만들 수도 있지만 여기서는 텐서를 입력받아 Dataset의 형태로 변환해주는 TensorDataset을 사용해보겠습니다.
+
+
+# 로지스틱 회귀(Logistic Regression)
+## 1.이진 분류
+- 합격, 불합격과 같은 2개의 OUT일때는 y = Wx + b와 같은 형태가 잘 동작하지 않음
+- 아래 사진과 같이 S자형, 1 또는 0으로 분류되어야함  
+![2023-02-14 오후 9-19-21](https://user-images.githubusercontent.com/57505385/218736592-46931df5-7e43-4ad1-a15f-b501b00db066.png)  
+
+## 2. 시그모이드 함수(Sigmoid function)
+- 위의 그림과 같이 범위의 값을 0 또는 1 사이의 수로 변환시켜주는 함수.
+- 시그모이드 함수의 방정식  
+![2023-02-14 오후 9-20-50](https://user-images.githubusercontent.com/57505385/218736945-8199923a-bf6a-41b7-85a3-a0b76d4aa7a6.png)  
+  
+- W(가중치)값에 따라 경사도 변화  
+![1](https://user-images.githubusercontent.com/57505385/218741926-4d4709f8-fec6-45ca-8987-ada69cec147a.png)  
+  
+- b(편향)값에 따라 좌,우 이동  
+![2](https://user-images.githubusercontent.com/57505385/218742206-126c4a06-51f3-4571-9d2b-8a2bf1092b8b.png)  
+  
+- 시그모이드 함수의 특징은 함수의 출력값이 0과 1사이의 값이라는 점
+- 즉, 실제값이 1일 때 예측값이 0에 가까워지면 오차가 커져야 하며, 실제값이 0일 때, 예측값이 1에 가까워지면 오차가 커져야 함
+- 이를 충족하는 함수가 바로 로그 함수  
+![3](https://user-images.githubusercontent.com/57505385/218747990-ac73724b-0747-4d6a-ae7d-df6683600925.png)
+
+- 이것을 식으로 표현하면 다음과 같음  
+![4](https://user-images.githubusercontent.com/57505385/218759881-2c9d5285-9f49-4019-8a85-8d3ab6ad38a2.png)
+  
+- 이것을 하나로 합치면 다음과 같음  
+![5](https://user-images.githubusercontent.com/57505385/218759980-c09680b8-adc8-4e89-9d7e-252eb79d955f.png)
+  
+- 위의 식을 기반으로 평균을 구함  
+![6](https://user-images.githubusercontent.com/57505385/218760044-85d2a6bb-f958-446f-b2cc-17bece1c66cb.png)
+
+- 위의 비용함수에 대해서 경사하강법으로 가중치 W를 찾아감  
+![7](https://user-images.githubusercontent.com/57505385/218761283-334cf16f-e014-4e1d-9ca3-e35ceab147f9.png)
+
