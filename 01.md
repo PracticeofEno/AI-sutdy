@@ -57,3 +57,8 @@ Dataset을 커스텀하여 만들 수도 있지만 여기서는 텐서를 입력
 - 위의 비용함수에 대해서 경사하강법으로 가중치 W를 찾아감  
 ![7](https://user-images.githubusercontent.com/57505385/218761283-334cf16f-e014-4e1d-9ca3-e35ceab147f9.png)
 
+
+## 04-02 nn.Module로 구현하는 로지스틱
+- 선형회귀 모델의 가설식 : H(x) = Wx + b
+- 로지스틱회귀 의 가설식 : H(x) = sigmoid(Wx + b)
+- 로지스틱의 가설식은 선형회귀의 가설식에 sigmoid를 거치면 됨
