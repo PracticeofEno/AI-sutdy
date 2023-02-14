@@ -13,10 +13,12 @@ x_train = torch.FloatTensor([[73, 80, 75],
 y_train = torch.FloatTensor([[152], [185], [180], [196], [142]])
 
 class MultivariateLinearRegressionModel(nn.Module):
+    # 필수
     def __init__(self):
         super().__init__()
         self.linear = nn.Linear(3, 1) # 다중 선형 회귀이므로 input_dim=3, output_dim=1.
 
+	# 필수 
     def forward(self, x):
         return self.linear(x)
     
