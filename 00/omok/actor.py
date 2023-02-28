@@ -14,6 +14,8 @@ class ActorCritic(nn.Module):
         self.n_rollout     = 500
         self.device = device
         
+        
+        
         self.fc1 = nn.Linear(100,256)
         self.fc2 = nn.Linear(256,256)
         self.fc_pi = nn.Linear(256,100)
@@ -42,7 +44,7 @@ class ActorCritic(nn.Module):
             s,a,r,s_prime,done = transition
             s_lst.append(s)
             a_lst.append([a])
-            r_lst.append([r/100.0])
+            r_lst.append([r])
             s_prime_lst.append(s_prime)
             done_mask = 0.0 if done else 1.0
             done_lst.append([done_mask])
