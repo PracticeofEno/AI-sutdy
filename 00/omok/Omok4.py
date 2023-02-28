@@ -59,6 +59,7 @@ class Omok(object):
         self.end = False
         
         self.tmp = 0
+        self.ai_win = True
         
 
     def init_board(self):
@@ -75,15 +76,17 @@ class Omok(object):
             self.winner = stone
             self.end = True
             if stone == 1:
-                return 10
+                self.ai_win = False
+                return 1
             else:
-                return -10
+                self.ai_win = True
+                return -1
             
         self.id += 1
         if (self.id == 100):
             self.end = True
             return 0
-        return cnt
+        return cnt * 0.001
     
     def print_board(self):
         i = 0
@@ -111,13 +114,19 @@ class Omok(object):
         y = action % 10
         reward = self.put_stone(x, y, 1)
         
-        if (self.tmp < 5000):
-            tmp_x = random.randint(0, 9)
-            tmp_y = random.randint(0, 9)
+        
+        
+        if (self.ai_win):
+            p  = random.uniform(0, 1)
+            if p > 0.3 or self.tmp < 5000:
+                tmp_x = random.randint(0, 9)
+                tmp_y = random.randint(0, 9)
+            else : 
+                tmp_x, tmp_y = self.ai(2)
             self.tmp = self.tmp + 1
-        else :
+        else:
             tmp_x, tmp_y = self.ai(2)
-        # tmp_x, tmp_y = self.ai(2)
+            
         reward_tmp = self.put_stone(tmp_x, tmp_y, 2)
         if (reward_tmp == -10):
             reward = reward_tmp

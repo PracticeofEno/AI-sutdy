@@ -24,7 +24,7 @@ print(n_observations)
 
 # 플레이어1,2 에이전트 생성
 model = ActorCritic(device).to(device)
-model.load_state_dict(torch.load('tmp.pth'))
+# model.load_state_dict(torch.load('tmp.pth'))
 
 steps_done = 0
 score = 0.0
@@ -44,22 +44,21 @@ for i_episode in range(num_episodes):
     
     while episode_end:
         for t in range(model.n_rollout):
+            s = s.view(1, 1, 10, 10)
             prob = model.pi(s)
             
             p = random.uniform(0, 1)
-            if p > 0.05:
-                # 여기부터 s에서 바둘돌이 두여진 (0이 아닌곳은 action에서 제외하고 뽑음)
-                board_tensor = torch.tensor(s, device=device, dtype=torch.long)
-                mask = (board_tensor == 0)
-                x_flatten = mask.flatten()
-                true_indices = torch.nonzero(x_flatten).flatten()
-                board_tensor = prob.flatten()
-                selected_values = torch.gather(board_tensor, 0, true_indices)
-                indicate = torch.nonzero(board_tensor == selected_values.unique().max(0)[0])
-                ####################################################################
-                a = torch.tensor([[indicate]], device=device, dtype=torch.long)
-            else :
-                a = env.sample()
+            # 여기부터 s에서 바둘돌이 두여진 (0이 아닌곳은 action에서 제외하고 뽑음)
+            board_tensor = torch.tensor(s, device=device, dtype=torch.long)
+            mask = (board_tensor == 0)
+            x_flatten = mask.flatten()
+            true_indices = torch.nonzero(x_flatten).flatten()
+            board_tensor = prob.flatten()
+            selected_values = torch.gather(board_tensor, 0, true_indices)
+            indicate = torch.nonzero(board_tensor == selected_values.unique().max(0)[0])
+            ####################################################################
+            a = torch.tensor([[indicate]], device=device, dtype=torch.long)
+            
             # m = Categorical(prob)
             # a = m.sample().item()
             s_prime, r, done = env.step(a)
@@ -75,7 +74,7 @@ for i_episode in range(num_episodes):
         steps_done +=1
             
     if i_episode%print_interval==0 and i_episode!=0:
-            print("# of episode :{}, avg reward : {:.1f}".format(i_episode, score/print_interval))
+            print("# of episode :{}, avg reward : {:.4f}".format(i_episode, score/print_interval))
             score = 0
 
 print('Complete')

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch
 import numpy as np
 
-learning_rate = 0.0002
+learning_rate = 0.02
 gamma         = 0.98
 
 class ActorCritic(nn.Module):
@@ -14,26 +14,59 @@ class ActorCritic(nn.Module):
         self.n_rollout     = 500
         self.device = device
         
+        self.keep_prob = 0.5
+        self.layer1 = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 32, kernel_size=5, stride=1, padding=1),
+            torch.nn.ReLU(),
+		)
         
+        self.layer2 = torch.nn.Sequential(
+            torch.nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            torch.nn.ReLU(),
+		)
         
-        self.fc1 = nn.Linear(100,256)
-        self.fc2 = nn.Linear(256,256)
-        self.fc_pi = nn.Linear(256,100)
-        self.fc_v = nn.Linear(256,1)
+        # L4 FC 4x4x128 inputs -> 625 outputs
+        self.fc1 = torch.nn.Linear(8 * 8 * 64, 128, bias=True)
+        torch.nn.init.xavier_uniform_(self.fc1.weight)
+        self.layer4 = torch.nn.Sequential(
+            self.fc1,
+            torch.nn.ReLU(),
+            torch.nn.Dropout(p=1 - self.keep_prob))
+        
+        self.fc2 = torch.nn.Linear(128, 100, bias=True)
+        torch.nn.init.xavier_uniform_(self.fc2.weight)
+        
+        self.fc3 = torch.nn.Linear(128, 1, bias=True)
+        torch.nn.init.xavier_uniform_(self.fc2.weight)
+        # self.fc1 = nn.Linear(100,256)
+        # self.fc2 = nn.Linear(256,256)
+        # self.fc_pi = nn.Linear(256,100)
+        # self.fc_v = nn.Linear(256,1)
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
         
     def pi(self, x, softmax_dim = 0):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc_pi(x)
-        prob = F.softmax(x)
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = out.view(out.size(0), -1)   # Flatten them for FC
+        out = self.layer4(out)
+        out = self.fc2(out)
+        prob = F.softmax(out)
+        # x = F.relu(self.fc1(x))
+        # x = F.relu(self.fc2(x))
+        # x = self.fc_pi(x)
+        # prob = F.softmax(x)
         return prob
     
     def v(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        v = self.fc_v(x)
-        return v
+        # x = F.relu(self.fc1(x))
+        # x = F.relu(self.fc2(x))
+        # v = self.fc_v(x)
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = out.view(out.size(0), -1)   # Flatten them for FC
+        out = self.layer4(out)
+        out = self.fc3(out)
+        return out
     
     def put_data(self, transition):
         self.data.append(transition)
@@ -61,6 +94,9 @@ class ActorCritic(nn.Module):
   
     def train_net(self):
         s, a, r, s_prime, done = self.make_batch()
+        
+        s_prime = s_prime.view(-1, 1, 10, 10)
+        s = s.view(-1, 1, 10, 10)
         
         td_target = r + gamma * self.v(s_prime) * done
         delta = td_target - self.v(s)
